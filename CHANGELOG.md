@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Chrome support — the extension now builds for both Chrome (Manifest V3 service worker) and Firefox
+  from a single shared codebase, via a `chrome`/`browser` namespace shim and a per-browser manifest
+- `build.sh` produces store-ready zips for both the Chrome Web Store and addons.mozilla.org
+
 ## v1.0.0
 
 Initial release.

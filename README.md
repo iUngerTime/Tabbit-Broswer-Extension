@@ -2,10 +2,10 @@
 
 ![Tabbit](branding/marketing-image.png)
 
-Automatic tab grouping for Firefox. When you open a link in a new tab, Tabbit groups it with the tab
-that opened it.
+Automatic tab grouping for Firefox and Chrome. When you open a link in a new tab, Tabbit groups it
+with the tab that opened it.
 
-Requires **Firefox 139** or newer.
+Requires **Firefox 139+** or **Chrome 89+**.
 
 ## Features
 
@@ -35,7 +35,10 @@ All settings are accessible from the toolbar popup — click the Tabbit icon in 
 
 ## Install
 
-Coming soon to [addons.mozilla.org](https://addons.mozilla.org).
+Coming soon to [addons.mozilla.org](https://addons.mozilla.org) and the
+[Chrome Web Store](https://chromewebstore.google.com).
+
+To build both packages from source, run `./build.sh` — see [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md).
 
 ## License
 

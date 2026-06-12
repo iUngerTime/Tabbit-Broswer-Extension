@@ -1,3 +1,10 @@
+// Cross-browser shim: Firefox exposes the promise-based `browser` namespace;
+// Chrome exposes `chrome` (its Manifest V3 APIs already return promises). Alias
+// the two so the rest of this file can use `browser.*` on either browser.
+if (typeof browser === "undefined") {
+  globalThis.browser = chrome;
+}
+
 const DEFAULTS = {
   groupby: "sot",
   naming: "dom",
