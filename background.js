@@ -36,15 +36,39 @@ function isExcludedUrl(url) {
   return /^(about:|moz-extension:|chrome:|data:|file:|resource:)/.test(url);
 }
 
+const MULTI_PART_SLDS = new Set([
+  "co", "com", "org", "net", "gov", "edu", "ac", "or", "ne", "go", "mil",
+]);
+
+function getRegistrableParts(hostname) {
+  const parts = hostname.split(".");
+  if (parts.length < 2) return { suffixLen: 0, domainIdx: 0 };
+
+  const last = parts[parts.length - 1];
+  const secondLast = parts[parts.length - 2];
+
+  const isMultiPartSuffix =
+    parts.length >= 3 &&
+    last.length === 2 &&
+    MULTI_PART_SLDS.has(secondLast.toLowerCase());
+
+  const suffixLen = isMultiPartSuffix ? 2 : 1;
+  const domainIdx = parts.length - suffixLen - 1;
+  return { suffixLen, domainIdx, parts };
+}
+
 function getDomainName(url, convention) {
   try {
     const hostname = new URL(url).hostname;
-    const parts = hostname.split(".");
+    const { domainIdx, parts } = getRegistrableParts(hostname);
+
     switch (convention) {
       case "dom":
-        return parts.length >= 3 ? parts[1] : parts[0];
-      case "subdom":
-        return parts.length >= 3 ? parts[0] + "." + parts[1] : parts[0];
+        return domainIdx >= 0 ? parts[domainIdx] : parts[0];
+      case "subdom": {
+        if (domainIdx <= 0) return parts[0];
+        return parts[domainIdx - 1] + "." + parts[domainIdx];
+      }
       case "subdomtld":
         return hostname;
       default:
