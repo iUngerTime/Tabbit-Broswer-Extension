@@ -49,9 +49,41 @@ download the signed `.xpi`.
 ## Architecture
 
 - `background.js` — core logic. Listens to `tabs.onCreated` (grouping), `tabs.onRemoved` (lonely tab
-  cleanup), and `tabs.onActivated` (auto-collapse). Reads settings from `browser.storage.local`.
+  cleanup), `tabs.onActivated` (auto-collapse), and `windows.onFocusChanged` (see below). Reads
+  settings from `browser.storage.local`.
 - `popup.html` / `popup.js` — toolbar popup with all settings UI. Auto-saves on change.
 - `icons/` — extension icons at 16, 32, 48, 96, 128px.
 
 Requires the `tabs`, `tabGroups`, and `storage` permissions. Tab groups require Firefox 139+ or
 Chrome 89+.
+
+### External opens
+
+A tab opened by another application — a mail client, a chat app, a terminal — still arrives at
+`tabs.onCreated` carrying an `openerTabId` that points at whatever tab was active, even though no
+page opened it. Grouping on that alone joins two unrelated sites.
+
+`webNavigation.onCreatedNavigationTarget` would be the direct signal for "a page opened this tab",
+but it is unusable on Firefox: since `target="_blank"` implies `rel="noopener"`, the event no longer
+fires for exactly the links Tabbit exists to group
+([bug 1543647](https://bugzilla.mozilla.org/show_bug.cgi?id=1543647)).
+
+So `background.js` tracks browser focus instead. An external open raises the browser from the
+background, so a tab created while the browser is unfocused — or within `EXTERNAL_OPEN_GRACE_MS` of
+it regaining focus — is treated as external and left ungrouped. The focus event can arrive on either
+side of `tabs.onCreated`, which is why both the unfocused case and the just-refocused case are
+checked. It is a heuristic: focusing the browser and clicking a link inside the grace window skips
+one grouping. It fails open — if the focus state is unknown (a restarted Chrome service worker),
+grouping proceeds as before.
+
+## Changelog
+
+Every user-visible change gets a `CHANGELOG.md` entry in the same commit that makes it. New
+features, behavior changes, and bug fixes all count; internal refactors that a user cannot observe
+do not.
+
+Entries go under `## Unreleased`, in an `### Added`, `### Changed`, `### Fixed`, or `### Removed`
+subsection. Write them for someone using the extension, not for someone reading the diff: say what
+now happens differently, not which function changed. On release, rename `## Unreleased` to the
+version, bump `manifest.json` and `manifest.chrome.json` together, and tag the release commit
+`vX.Y.Z`.

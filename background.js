@@ -36,6 +36,44 @@ function isExcludedUrl(url) {
   return /^(about:|moz-extension:|chrome:|data:|file:|resource:)/.test(url);
 }
 
+// Pages the browser opens on its own. A link never targets one, so a new tab
+// sitting on one was not opened by the tab that happens to be its opener.
+const NEW_TAB_URLS = /^(about:(newtab|home|privatebrowsing)|chrome:\/\/newtab|edge:\/\/newtab)/;
+
+function isNewTabPage(url) {
+  return NEW_TAB_URLS.test(url);
+}
+
+// A tab opened by another application — a mail client, a chat app, a terminal —
+// still arrives with an `openerTabId` pointing at whatever tab happened to be
+// active, which would group two unrelated pages together. Such an open raises
+// the browser from the background, so a tab created while the browser is
+// unfocused, or in the moments right after it regained focus, came from outside
+// and is left alone. The focus event can land on either side of the tab itself,
+// hence both checks.
+const EXTERNAL_OPEN_GRACE_MS = 500;
+
+let browserFocused = true;
+let browserFocusedAt = 0;
+
+browser.windows.getLastFocused().then(
+  (win) => {
+    browserFocused = win.focused;
+  },
+  () => {}
+);
+
+browser.windows.onFocusChanged.addListener((windowId) => {
+  const focused = windowId !== browser.windows.WINDOW_ID_NONE;
+  if (focused && !browserFocused) browserFocusedAt = Date.now();
+  browserFocused = focused;
+});
+
+function isExternalOpen(createdAt) {
+  if (!browserFocused) return true;
+  return createdAt - browserFocusedAt <= EXTERNAL_OPEN_GRACE_MS;
+}
+
 const MULTI_PART_SLDS = new Set([
   "co", "com", "org", "net", "gov", "edu", "ac", "or", "ne", "go", "mil",
 ]);
@@ -114,6 +152,9 @@ async function tryUngroup(tabId) {
 browser.tabs.onCreated.addListener(async (newTab) => {
   if (newTab.openerTabId === undefined) return;
 
+  const createdAt = Date.now();
+  if (isExternalOpen(createdAt)) return;
+
   try {
     const opener = await browser.tabs.get(newTab.openerTabId);
     if (opener.windowId !== newTab.windowId) return;
@@ -121,6 +162,9 @@ browser.tabs.onCreated.addListener(async (newTab) => {
 
     const openerUrl = opener.url || "";
     if (isExcludedUrl(openerUrl)) return;
+
+    const newUrl = newTab.pendingUrl || newTab.url || "";
+    if (isNewTabPage(newUrl)) return;
 
     const settings = await getSettings();
 
@@ -135,7 +179,6 @@ browser.tabs.onCreated.addListener(async (newTab) => {
     }
 
     const isNewGroup = opener.groupId === browser.tabGroups.TAB_GROUP_ID_NONE;
-    const newUrl = newTab.pendingUrl || newTab.url || "";
 
     if (settings.groupby === "sd") {
       const sameHost = getHostname(openerUrl) === getHostname(newUrl);
