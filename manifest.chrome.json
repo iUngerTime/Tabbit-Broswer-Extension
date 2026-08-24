@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Tabbit - Automatic Tab Grouping",
   "version": "1.1.0",
-  "description": "Automatic tab grouping — groups new tabs with the tab that opened them. Configurable naming, max group size, custom rules, blacklist, and more.",
+  "description": "Automatic tab grouping — new tabs join the tab that opened them. Configurable naming, group size limits, custom rules, blacklist.",
   "minimum_chrome_version": "89",
   "permissions": ["tabs", "tabGroups", "storage"],
   "background": {
