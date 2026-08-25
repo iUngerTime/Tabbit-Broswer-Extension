@@ -40,6 +40,12 @@ Coming soon to [addons.mozilla.org](https://addons.mozilla.org) and the
 
 To build both packages from source, run `./build.sh` — see [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md).
 
+## Privacy
+
+Tabbit sends nothing anywhere — no server, no network requests, no analytics. It reads tab URLs in
+the moment to name a group, and stores only your settings, on your own machine. See
+[PRIVACY.md](PRIVACY.md).
+
 ## License
 
 [GPL-3.0](LICENSE.md)
