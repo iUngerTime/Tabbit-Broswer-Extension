@@ -68,9 +68,9 @@ visible in its commit history.
 ## Contact
 
 Questions or concerns: open an issue at
-<https://github.com/iUngerTime/Tabbit-Firefox-Extension/issues>.
+<https://github.com/iUngerTime/Tabbit-Broswer-Extension/issues>.
 
 ## Source
 
 Tabbit is free software, licensed under the GPL-3.0. You can read every line of it at
-<https://github.com/iUngerTime/Tabbit-Firefox-Extension>.
+<https://github.com/iUngerTime/Tabbit-Broswer-Extension>.

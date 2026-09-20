@@ -35,8 +35,8 @@ All settings are accessible from the toolbar popup — click the Tabbit icon in 
 
 ## Install
 
-Coming soon to [addons.mozilla.org](https://addons.mozilla.org) and the
-[Chrome Web Store](https://chromewebstore.google.com).
+- Firefox: [addons.mozilla.org](https://addons.mozilla.org/firefox/addon/tabbit/)
+- Chrome: [Chrome Web Store](https://chromewebstore.google.com/detail/tabbit-automatic-tab-grou/cpjgcdeenodenpfkodghkaeippadchnb)
 
 To build both packages from source, run `./build.sh` — see [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md).
 
